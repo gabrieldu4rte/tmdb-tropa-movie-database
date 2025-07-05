@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tmdb_app
+    restart: unless-stopped
+    volumes:
+      - .:/var/www
+      - ./storage:/var/www/storage
+    networks:
+      - tmdb_network
+    depends_on:
+      - redis
+      - mongodb
+
+  nginx:
+    image: nginx:alpine
+    container_name: tmdb_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - tmdb_network
+    depends_on:
+      - app
+
+  mongodb:
+    image: mongo:latest
+    container_name: tmdb_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - tmdb_network
+
+  redis:
+    image: redis:alpine
+    container_name: tmdb_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - tmdb_network
+
+networks:
+  tmdb_network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local 

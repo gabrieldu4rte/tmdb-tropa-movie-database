@@ -5,6 +5,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\RatingController;
 
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok']);
+});
+
 Route::post('register', [AuthController::class, 'register']);
 
 Route::middleware('auth.basic')->group(function(){
