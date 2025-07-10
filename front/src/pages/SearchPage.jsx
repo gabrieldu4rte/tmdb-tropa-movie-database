@@ -23,7 +23,10 @@ export default function SearchPage() {
     setIsLoadingRated(true)
     api
       .get("/rated")
-      .then((resp) => setRatedList(resp.data))
+      .then((resp) => {
+        // Garante que resp.data é um array antes de definir ratedList
+        setRatedList(Array.isArray(resp.data) ? resp.data : [])
+      })
       .catch(console.error)
       .finally(() => setIsLoadingRated(false))
   }, [])
@@ -34,7 +37,8 @@ export default function SearchPage() {
     setHasSearched(true)
     try {
       const resp = await api.get("/search", { params: { query } })
-      setResults(resp.data)
+      // Garante que resp.data é um array antes de definir results
+      setResults(Array.isArray(resp.data) ? resp.data : [])
     } catch (error) {
       console.error("Error searching movies:", error)
       setResults([])
@@ -55,7 +59,8 @@ export default function SearchPage() {
 
     try {
       const resp = await api.get(`/${movie.tmdb_id}/ratings`)
-      setMovieRatings(resp.data.ratings)
+      // Garante que resp.data.ratings é um array antes de definir movieRatings
+      setMovieRatings(Array.isArray(resp.data.ratings) ? resp.data.ratings : [])
       setMovieAverage(resp.data.average)
     } catch (error) {
       console.error("Error fetching ratings:", error)
@@ -147,8 +152,7 @@ export default function SearchPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                />
+                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
               </svg>
               Filmes Avaliados
             </h2>
@@ -160,7 +164,7 @@ export default function SearchPage() {
                 <div className="loading-spinner"></div>
                 <p>Carregando filmes avaliados...</p>
               </div>
-            ) : ratedList.length > 0 ? (
+            ) : Array.isArray(ratedList) && ratedList.length > 0 ? (
               ratedList.map((f) => (
                 <div key={f.tmdb_id} className="movie-card rated-card clickable" onClick={() => openMovieModal(f)}>
                   <div className="movie-poster">
@@ -255,7 +259,7 @@ export default function SearchPage() {
                     <div className="loading-spinner"></div>
                     <p>Buscando filmes...</p>
                   </div>
-                ) : results.length > 0 ? (
+                ) : Array.isArray(results) && results.length > 0 ? (
                   results.map((m) => {
                     const posterUrl = m.poster_path
                       ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
@@ -357,7 +361,7 @@ export default function SearchPage() {
                   <div className="loading-spinner"></div>
                   <p>Carregando avaliações...</p>
                 </div>
-              ) : movieRatings.length > 0 ? (
+              ) : Array.isArray(movieRatings) && movieRatings.length > 0 ? (
                 <div className="modal-ratings-list">
                   {movieRatings.map((rating, index) => (
                     <div key={index} className="modal-rating-card">
