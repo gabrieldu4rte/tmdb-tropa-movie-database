@@ -12,12 +12,15 @@ RUN apt-get update && apt-get install -y \
     autoconf \
     pkg-config \
     build-essential \
-    nginx
+    nginx \
+    libssl-dev \
+    openssl
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
-RUN pecl install mongodb && docker-php-ext-enable mongodb
+RUN pecl install --configureoptions 'enable-ssl="yes" with-ssl-dir="/usr" enable-mongodb-developer-flags="yes"' mongodb
+RUN docker-php-ext-enable mongodb
 RUN pecl install redis && docker-php-ext-enable redis
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
